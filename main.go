@@ -217,10 +217,16 @@ func getClientIP(r *http.Request) string {
 // trackHandler receives tracking data from the client-side JavaScript
 // It validates the request and saves the page view to the JSON file
 func trackHandler(w http.ResponseWriter, r *http.Request) {
-	// Set CORS headers to allow cross-origin requests
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	// CORS headers are now handled by middleware, but keep these for compatibility
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	
 	// Handle preflight OPTIONS request
 	if r.Method == http.MethodOptions {
@@ -596,10 +602,18 @@ func main() {
 	// Add CORS middleware for all routes
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Set CORS headers for all responses
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			// Get the origin from the request
+			origin := r.Header.Get("Origin")
+			
+			// Set CORS headers - use specific origin instead of wildcard for credentials
+			if origin != "" {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+			} else {
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+			}
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			
 			// Handle preflight requests globally
 			if r.Method == "OPTIONS" {
