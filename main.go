@@ -586,14 +586,33 @@ func main() {
 	// --- Route Definitions ---
 	// Each route maps a URL path to a handler function
 	r.HandleFunc("/", dashboardHandler).Methods("GET")
-	r.HandleFunc("/track", trackHandler).Methods("POST")
+	r.HandleFunc("/track", trackHandler).Methods("POST", "OPTIONS")
 	r.HandleFunc("/stats/{trackingId}", statsHandler).Methods("GET")
 	r.HandleFunc("/analytics.js", analyticsScriptHandler).Methods("GET")
 	r.HandleFunc("/test", testPageHandler).Methods("GET")
 	r.HandleFunc("/test2", testPage2Handler).Methods("GET")
 
 	// --- Middleware ---
-	// This middleware adds security headers to all responses
+	// Add CORS middleware for all routes
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Set CORS headers for all responses
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			
+			// Handle preflight requests globally
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+			
+			// Call the next handler in the chain
+			next.ServeHTTP(w, r)
+		})
+	})
+	
+	// Add security headers middleware
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Prevents MIME-sniffing the content type
