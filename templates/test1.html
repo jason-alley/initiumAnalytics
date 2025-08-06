@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Page 1 - Go Analytics</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .links {
+            margin: 30px 0;
+        }
+
+        .links a {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .links a:hover {
+            background: #0056b3;
+        }
+
+        .info {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 Test Page 1</h1>
+        <p>This page has Go analytics tracking enabled!!.</p>
+
+        <div class="info">
+            <strong>Testing Instructions:</strong><br>
+            1. Refresh this page a few times<br>
+            2. Navigate to Test Page 2<br>
+            3. Go back to the dashboard to see your data!
+        </div>
+
+        <div class="links">
+            <a href="/test2">→ Test Page 2</a>
+            <a href="/">📊 Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Analytics tracking -->
+    <script src="/analytics.js"></script>
+</body>
+
+</html>

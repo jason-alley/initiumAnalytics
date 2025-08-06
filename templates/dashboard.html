@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Go Analytics Dashboard</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0; padding: 40px; background: #f8f9fa; 
+        }
+        .container { 
+            max-width: 900px; margin: 0 auto;
+            background: white; padding: 40px; 
+            border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: #2c3e50; margin: 0; font-size: 2.5em; }
+        .header p { color: #7f8c8d; margin: 10px 0 0 0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 25px; border-radius: 10px; text-align: center;
+        }
+        .stat-number { font-size: 2.5em; font-weight: bold; margin: 0; }
+        .stat-label { opacity: 0.9; margin: 5px 0 0 0; }
+        .section { 
+            background: #f8f9fa; padding: 25px; margin: 20px 0; 
+            border-radius: 10px; border: 1px solid #e9ecef;
+        }
+        .section h3 { margin-top: 0; color: #495057; font-size: 1.3em; }
+        .list-item { 
+            padding: 15px 0; border-bottom: 1px solid #dee2e6;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .list-item:last-child { border-bottom: none; }
+        .list-item .url { color: #495057; font-weight: 500; }
+        .list-item .count { 
+            background: #007bff; color: white; padding: 4px 12px; 
+            border-radius: 20px; font-weight: bold; font-size: 0.9em;
+        }
+        .loading { text-align: center; color: #6c757d; padding: 40px; }
+        .test-links { text-align: center; margin-top: 30px; }
+        .test-links a { 
+            display: inline-block; margin: 0 10px; padding: 10px 20px;
+            background: #28a745; color: white; text-decoration: none;
+            border-radius: 6px; font-weight: 500;
+        }
+        .test-links a:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Go Analytics</h1>
+            <p>Fast, secure page view tracking</p>
+        </div>
+        
+        <div id="stats" class="loading">Loading analytics data...</div>
+        
+        <div class="test-links">
+            <a href="/test">🧪 Test Page 1</a>
+            <a href="/test2">🧪 Test Page 2</a>
+        </div>
+    </div>
+    
+    <script>
+        fetch('/stats/{{.TrackingID}}')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('stats').innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">${data.summary.total_views}</div>
+                            <div class="stat-label">Total Page Views</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <div class="stat-number">${data.summary.unique_sessions}</div>
+                            <div class="stat-label">Unique Sessions</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <div class="stat-number">${data.summary.days_with_traffic}</div>
+                            <div class="stat-label">Days with Traffic</div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3>🏆 Top Pages (Last 30 Days)</h3>
+                        ${data.top_pages.length ? 
+                            data.top_pages.map(page => 
+                                `<div class="list-item">
+                                    <span class="url">${page.page_url}</span>
+                                    <span class="count">${page.views}</span>
+                                </div>`
+                            ).join('') : 
+                            '<div style="text-align: center; color: #6c757d; padding: 20px;">No page views yet. Try the test pages above!</div>'
+                        }
+                    </div>
+                    
+                    <div class="section">
+                        <h3>🌐 Browser Usage</h3>
+                        ${data.browsers.length ?
+                            data.browsers.map(browser => 
+                                `<div class="list-item">
+                                    <span class="url">${browser.browser}</span>
+                                    <span class="count">${browser.count}</span>
+                                </div>`
+                            ).join('') :
+                            '<div style="text-align: center; color: #6c757d; padding: 20px;">No browser data yet</div>'
+                        }
+                    </div>
+                `;
+            })
+            .catch(err => {
+                document.getElementById('stats').innerHTML = '<div style="text-align: center; color: #dc3545; padding: 40px;">Error loading analytics data</div>';
+                console.error(err);
+            });
+    </script>
+</body>
+</html>
