@@ -217,6 +217,17 @@ func getClientIP(r *http.Request) string {
 // trackHandler receives tracking data from the client-side JavaScript
 // It validates the request and saves the page view to the JSON file
 func trackHandler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers to allow cross-origin requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	
+	// Handle preflight OPTIONS request
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	
 	// Only allow POST requests for tracking
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -419,7 +430,7 @@ func analyticsScriptHandler(w http.ResponseWriter, r *http.Request) {
 	// The tracking script, with a placeholder for the tracking ID
 	scriptContent := `(function() {
     const Analytics = {
-        endpoint: window.location.origin + '/track',
+        endpoint: '{{ANALYTICS_ORIGIN}}/track',
         trackingId: '{{TRACKING_ID}}', // This will be replaced by the server
         
         init() {
@@ -472,8 +483,15 @@ func analyticsScriptHandler(w http.ResponseWriter, r *http.Request) {
     }
 })();`
 
-	// Replace the placeholder with the actual tracking ID
+	// Get the analytics server origin from the request
+	analyticsOrigin := "http://" + r.Host
+	if r.TLS != nil {
+		analyticsOrigin = "https://" + r.Host
+	}
+	
+	// Replace the placeholders with actual values
 	finaScript := strings.Replace(scriptContent, "{{TRACKING_ID}}", trackingID, 1)
+	finaScript = strings.Replace(finaScript, "{{ANALYTICS_ORIGIN}}", analyticsOrigin, 1)
 
 	// Serve the final script
 	w.Header().Set("Content-Type", "application/javascript")
