@@ -484,9 +484,19 @@ func analyticsScriptHandler(w http.ResponseWriter, r *http.Request) {
 })();`
 
 	// Get the analytics server origin from the request
-	analyticsOrigin := "http://" + r.Host
-	if r.TLS != nil {
-		analyticsOrigin = "https://" + r.Host
+	// Check for HTTPS using multiple methods (Railway uses proxy SSL termination)
+	analyticsOrigin := "https://" + r.Host
+	
+	// Only use HTTP if explicitly running on localhost
+	if strings.Contains(r.Host, "localhost") || strings.Contains(r.Host, "127.0.0.1") {
+		analyticsOrigin = "http://" + r.Host
+	}
+	
+	// Check various HTTPS indicators from proxies/load balancers
+	if r.Header.Get("X-Forwarded-Proto") == "http" ||
+	   r.Header.Get("X-Forwarded-Scheme") == "http" ||
+	   r.Header.Get("X-Scheme") == "http" {
+		analyticsOrigin = "http://" + r.Host
 	}
 	
 	// Replace the placeholders with actual values

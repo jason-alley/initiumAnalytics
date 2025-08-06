@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "1754502307663875000_1754502307",
+    "website_id": "initium-digital_246",
+    "session_id": "me09dgssilavw",
+    "page_url": "http://localhost:8080/test",
+    "page_title": "Test Page 1 - Go Analytics",
+    "referrer": "http://localhost:8080/",
+    "ip_address": "[",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "browser": "Chrome",
+    "timestamp": "2025-08-06T17:45:07.66Z"
+  }
+]
